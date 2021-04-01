@@ -13,7 +13,6 @@ func main() {
 	chan3 := make(chan struct{})
 
 	go func() {
-		// если Done не выполнится из-за ошибки, будет deadlock, а defer выполняется при любом завершении функции
 		defer wg.Done()
 		for _, value := range []int{0, 3, 6, 9} {
 			fmt.Println(value)
