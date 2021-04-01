@@ -3,39 +3,40 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 )
 
-/*
-будут выводиться числа "у каждой горутины 1 число", "у  каждой горутины n+1 число" числа под индексом n В случайном порядке из 3х горутин
-*/
-// это то решение которое ожидалось? я книгу читал ( приостановил на изучение алгоритмов ), там как раз следующая тема была многопоточность ("язык программирования go" называется книга) если что продолжу\доизучу что нужно
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(3)
+	chan1 := make(chan struct{})
+	chan2 := make(chan struct{})
+	chan3 := make(chan struct{})
 
 	go func() {
 		// если Done не выполнится из-за ошибки, будет deadlock, а defer выполняется при любом завершении функции
 		defer wg.Done()
-		for _, value := range []int{1, 4, 7} {
+		for _, value := range []int{0, 3, 6, 9} {
 			fmt.Println(value)
-			time.Sleep(time.Millisecond * 1)
+			chan1 <- struct{}{}
+			<-chan3
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
-		for _, value := range []int{2, 5, 8} {
+		for _, value := range []int{1, 4, 7, 10} {
+			<-chan1
 			fmt.Println(value)
-			time.Sleep(time.Millisecond * 1)
+			chan2 <- struct{}{}
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
-		for _, value := range []int{3, 6, 9} {
+		for _, value := range []int{2, 5, 8, 11} {
+			<-chan2
 			fmt.Println(value)
-			time.Sleep(time.Millisecond * 1)
+			chan3 <- struct{}{}
 		}
 	}()
 	wg.Wait()
